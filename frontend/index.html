@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Simples</title>
+</head>
+<body>
+
+    <h2>Cadastro de Usuários</h2>
+
+    <input id="name" placeholder="Nome">
+    <input id="email" placeholder="Email">
+    <button onclick="createUser()">Adicionar</button>
+
+    <h3>Usuários</h3>
+    <ul id="userList"></ul>
+
+    <script>
+        const API = "http://localhost:3000/users";
+
+        async function loadUsers() {
+            const res = await fetch(API);
+            const data = await res.json();
+
+            const list = document.getElementById("userList");
+            list.innerHTML = "";
+
+            data.forEach(user => {
+                const li = document.createElement("li");
+
+                li.innerHTML = `
+                    ${user.name} — ${user.email}
+                    <button onclick="deleteUser(${user.id})">Excluir</button>
+                `;
+
+                list.appendChild(li);
+            });
+        }
+
+        async function createUser() {
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+
+            await fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email })
+            });
+
+            loadUsers();
+        }
+
+        async function deleteUser(id) {
+            await fetch(`${API}/${id}`, { method: "DELETE" });
+            loadUsers();
+        }
+
+        loadUsers();
+    </script>
+
+</body>
+</html>
